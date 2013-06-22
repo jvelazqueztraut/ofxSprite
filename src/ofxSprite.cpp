@@ -1,27 +1,40 @@
 #include "ofxSprite.h"
 
 ofxSprite::ofxSprite() {
+    isLoaded=false;
     isPlaying = false;
     speed = 1;
     pos = 0;
+    palindrome = false;
     loop = true;
     visible = true;
     frameRate = 20;
 }
 
-void ofxSprite::load(string filename, int numFrames, int start, string id) {
-    this->id = id;
-    
-    for (int i=start; i<numFrames+start; i++) {
-        addFile(ofVAArgsToString(filename.c_str(), i));
+void ofxSprite::addFile(string filename) {
+    files.push_back(filename);
+    totalFrames = files.size();
+    if(isLoaded){
+        ofImage img;
+        img.loadImage(filename);
+        images.push_back(img);
+    }
+    else{
+        images.assign(totalFrames,ofImage());
     }
 }
 
-void ofxSprite::addFile(string filename) {
-    ofImage img;
-    img.loadImage(filename);
-    images.push_back(img);
-    totalFrames = images.size();
+void ofxSprite::loadImages() {
+    for(int i=0;i<totalFrames;i++){
+        images[i].loadImage(files[i]);
+    }
+    isLoaded=true;
+}
+
+void ofxSprite::unloadImages(){
+    isLoaded=false;
+    images.clear();
+    images.assign(totalFrames,ofImage());
 }
 
 void ofxSprite::setFrameRate(int frameRate) {
@@ -39,32 +52,37 @@ int ofxSprite::getTotalFrames() {
 
 void ofxSprite::setCurrentFrame(float frame) {
     pos = frame;
-
-    if (pos<0){
-        if (loop) {
-            pos += totalFrames;
+    if(pos<0 || pos>=totalFrames){
+        if(palindrome) {
+            speed = -speed;
+            if(totalFrames>1){
+                if (pos<0)                  pos = 1;
+                else if (pos>=totalFrames)  pos=totalFrames-2;
+            }
+            else{
+                if (pos<0)                  pos = 0;
+                else if (pos>=totalFrames)  pos=totalFrames-1;
+            }
         }
         else{
-            stop();
+            if (pos<0)                  pos+= totalFrames;
+            else if (pos>=totalFrames)  pos-= totalFrames;
         }
-    }
-    if (pos>=totalFrames){
-        if (loop) {
-            pos -= totalFrames;
-        }
-        else{
-            pos = totalFrames-.00001f;
-            isPlaying=false;
-        }
+        
+        isPlaying = loop;
     }
 }
 
 float ofxSprite::getProgress() {
-    return pos / totalFrames;
+    return pos / (totalFrames-1);
 }
 
 void ofxSprite::setLoop(bool loop) {
     this->loop = loop;
+}
+
+void ofxSprite::setPalindrome(bool palindrome) {
+    this->palindrome = palindrome;
 }
 
 void ofxSprite::update() {
@@ -112,6 +130,10 @@ bool ofxSprite::getIsPlaying() {
     return isPlaying;
 }
 
+bool ofxSprite::getIsLoaded() {
+    return isLoaded;
+}
+
 float ofxSprite::getWidth() {
     return getCurrentImage().getWidth();
 }
@@ -129,8 +151,8 @@ void ofxSprite::draw(ofVec2f v) {
 }
 
 void ofxSprite::draw(float x, float y) {
-    if (!visible) return;
-    getCurrentImage().draw(ofPoint(x,y)-anchorPoint);
+    if (isLoaded && visible)
+        getCurrentImage().draw(ofPoint(x,y)-anchorPoint);
 }
 
 ofImage& ofxSprite::getImageAtFrame(int frame) {

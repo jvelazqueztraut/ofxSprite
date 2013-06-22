@@ -5,7 +5,6 @@ class ofxSprite {
 public:
     
     ofxSprite();
-    void load(string filename, int numFrames=1, int start=0, string id="");
     
     void draw(float x, float y);
     void draw(ofVec2f v);
@@ -21,6 +20,7 @@ public:
     void addFile(string filename);
     void setCurrentFrame(float frame);
     void setLoop(bool loop);
+    void setPalindrome(bool palindrome);
     void nextFrame();
     void previousFrame();
     void center();
@@ -42,16 +42,22 @@ public:
     ofRectangle getBounds();
     ofVec2f getSize();
     
-    string id;
+    bool getIsLoaded();
+    void loadImages();
+    void unloadImages();
+    
     bool visible;
     
 private:
     int totalFrames;
     int frameRate;
     bool loop;
+    bool palindrome;
     float speed;
     float pos;
     bool isPlaying;
+    bool isLoaded;
     ofPoint anchorPoint;
+    vector<string> files;
     vector<ofImage> images;
 };
