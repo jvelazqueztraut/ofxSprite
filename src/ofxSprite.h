@@ -1,16 +1,12 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxAssets.h"
-
-class ofxSprite : public ofNode {
+class ofxSprite {
 public:
     
     ofxSprite();
     void load(string filename, int numFrames=1, int start=0, string id="");
     
-    void customDraw();
-
     void draw(float x, float y);
     void draw(ofVec2f v);
     void draw();
@@ -57,6 +53,5 @@ private:
     float pos;
     bool isPlaying;
     ofPoint anchorPoint;
-    vector<string> filenames;
-    static ofxImageAssets assets;
+    vector<ofImage> images;
 };

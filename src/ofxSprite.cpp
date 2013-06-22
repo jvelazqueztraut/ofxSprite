@@ -1,7 +1,5 @@
 #include "ofxSprite.h"
 
-ofxImageAssets ofxSprite::assets; // create static instance
-
 ofxSprite::ofxSprite() {
     isPlaying = false;
     speed = 1;
@@ -20,9 +18,10 @@ void ofxSprite::load(string filename, int numFrames, int start, string id) {
 }
 
 void ofxSprite::addFile(string filename) {
-    filenames.push_back(filename);
-    assets.add(filename);
-    totalFrames = filenames.size();
+    ofImage img;
+    img.loadImage(filename);
+    images.push_back(img);
+    totalFrames = images.size();
 }
 
 void ofxSprite::setFrameRate(int frameRate) {
@@ -41,8 +40,23 @@ int ofxSprite::getTotalFrames() {
 void ofxSprite::setCurrentFrame(float frame) {
     pos = frame;
 
-    if (pos<0) if (loop) { pos += totalFrames; } else stop();
-    if (pos>=totalFrames) if (loop) { pos -= totalFrames;  } else { pos = totalFrames-.00001f; isPlaying=false; }
+    if (pos<0){
+        if (loop) {
+            pos += totalFrames;
+        }
+        else{
+            stop();
+        }
+    }
+    if (pos>=totalFrames){
+        if (loop) {
+            pos -= totalFrames;
+        }
+        else{
+            pos = totalFrames-.00001f;
+            isPlaying=false;
+        }
+    }
 }
 
 float ofxSprite::getProgress() {
@@ -79,18 +93,6 @@ void ofxSprite::center() {
     setAnchorPercent(.5,.5);
 }
 
-void ofxSprite::setPosition(float x, float y) {
-    ofNode::setPosition(x,y,0);
-}
-
-void ofxSprite::setPosition(ofVec3f v) {
-    ofNode::setPosition(v);
-}
-
-void ofxSprite::setRotation(float rotation) {
-    setOrientation(ofVec3f(0,0,rotation));
-}
-
 void ofxSprite::play() {
     pos = 0;
     visible = true;
@@ -118,38 +120,24 @@ float ofxSprite::getHeight() {
     return getCurrentImage().getHeight();
 }
 
-void ofxSprite::customDraw() {
-    if (!visible) return;
-    getCurrentImage().draw(-anchorPoint);
-}
-
 void ofxSprite::draw() {
-    ofNode::draw();
-}
-
-void ofxSprite::draw(float x, float y) {
-    //or should this one call setPosition and then draw()?
-    getCurrentImage().draw(ofPoint(x,y)-anchorPoint);
+    draw(0,0);
 }
 
 void ofxSprite::draw(ofVec2f v) {
     draw(v.x,v.y);
 }
 
+void ofxSprite::draw(float x, float y) {
+    if (!visible) return;
+    getCurrentImage().draw(ofPoint(x,y)-anchorPoint);
+}
+
 ofImage& ofxSprite::getImageAtFrame(int frame) {
-    assert(totalFrames);
-    if (frame<=totalFrames) return assets[filenames[frame]];
-    else return assets[filenames[0]];
+    if (frame<=totalFrames) return images[frame];
+    else return images[0];
 }
 
 ofImage& ofxSprite::getCurrentImage() {
     return getImageAtFrame(getCurrentFrame());
-}
-
-ofRectangle ofxSprite::getBounds() {
-    return ofRectangle(getPosition().x, getPosition().y, getWidth(), getHeight());
-}
-
-ofVec2f ofxSprite::getSize() {
-    return ofPoint(getWidth(), getHeight());
 }
