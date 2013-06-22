@@ -14,9 +14,6 @@ public:
     void setFrameRate(int frameRate);
     void setSpeed(float speed);
     void setProgress(float pct);
-    void setPosition(float x, float y);
-    void setPosition(ofVec3f v);
-    void setRotation(float rotation);
     void addFile(string filename);
     void setCurrentFrame(float frame);
     void setLoop(bool loop);
