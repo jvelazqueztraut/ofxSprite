@@ -52,9 +52,11 @@ private:
     bool palindrome;
     float speed;
     float pos;
+    int currentFrame;
     bool isPlaying;
     bool isLoaded;
     ofPoint anchorPoint;
     vector<string> files;
-    vector<ofImage> images;
+    vector<ofPixels> images;
+    ofTexture texture;
 };
